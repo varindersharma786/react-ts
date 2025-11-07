@@ -1,5 +1,6 @@
 import { GalleryVerticalEnd } from "lucide-react"
 import { Outlet } from "react-router"
+// import LaserFlowComponent from "~/components/componet/LaserFlowComponent"
 
 export default function AuthLayout() {
   return (
@@ -20,11 +21,7 @@ export default function AuthLayout() {
         </div>
       </div>
       <div className="bg-muted relative hidden lg:block">
-        <img
-          src="/placeholder.svg"
-          alt="Image"
-          className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
-        />
+      {/* <LaserFlowComponent/> */}
       </div>
     </div>
   )

@@ -1,0 +1,17 @@
+import { Outlet } from "react-router";
+import Footer from "./Footer";
+import { Header } from "./Header";
+
+const MainLayout = () => {
+  return (
+    <div className="main-app">
+      <Header />
+      <div className="main">
+        <Outlet />
+      </div>
+      <Footer />
+    </div>
+  );
+};
+
+export default MainLayout;

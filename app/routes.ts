@@ -6,13 +6,12 @@ import {
 } from "@react-router/dev/routes";
 
 export default [
-  layout("./layouts/MainLayout.tsx", [
-    index("routes/home.tsx"), // ✅ has header
-    route("/about", "routes/about.tsx"), // ✅ has header
+  layout("./components/layouts/pages/MainLayout.tsx", [
+    index("routes/home.tsx"),
+    route("/about", "routes/about.tsx"),
   ]),
-  
-  layout("./auth/layout.tsx", [
-    route("login", "./auth/login.tsx"),
-    route("register", "./auth/register.tsx"),
+  layout("./components/layouts/auth/AuthLayout.tsx", [
+    route("/auth/login", "routes/auth/login.tsx"),
+    route("/auth/register", "routes/auth/register.tsx"),
   ]),
 ] satisfies RouteConfig;
