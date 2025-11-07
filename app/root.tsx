@@ -9,7 +9,9 @@ import {
 
 import type { Route } from "./+types/root";
 import "./app.css";
-import { Toaster } from "~/components/ui/sonner"
+import { Toaster } from "~/components/ui/sonner";
+import { Provider } from "react-redux";
+import { store } from "./redux/store";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -34,8 +36,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body>
-        {children}
-          <Toaster richColors  />
+        <Provider store={store}>
+          {children}
+          <Toaster richColors />
+        </Provider>
         <ScrollRestoration />
         <Scripts />
       </body>

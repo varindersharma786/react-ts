@@ -10,7 +10,7 @@ import {
 import { Input } from "~/components/ui/input";
 import { Link } from "react-router";
 import { FaGithub, FaGoogle } from "react-icons/fa";
-import axiosInstanceAPI from "~/utils/axiosapi";
+import {api} from "~/utils/axiosapi";
 import { toast } from "sonner";
 
 export default function LoginForm({
@@ -23,13 +23,18 @@ export default function LoginForm({
       const formData = new FormData(e.currentTarget);
       const email = formData.get("email");
       const password = formData.get("password");
-      const { data } = await axiosInstanceAPI.post("/auth/login",{
+      const { data } = await api.post("/auth/login",{
         email,
         password
       });
       console.log(data);
     } catch (error) {
-      toast.error((error as Error));
+      if (error && typeof error === 'object' && 'response' in error && error.response && typeof error.response === 'object' && 'data' in error.response && error.response.data && typeof error.response.data === 'object' && 'message' in error.response.data) {
+        console.log(error.response.data.message);
+        toast.error(error.response.data.message as string);
+      } else if (error instanceof Error) {
+        toast.error(error.message);
+      }
     }
   };
   return (
