@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 
 interface PostData {
   userId: number;
@@ -12,6 +12,11 @@ interface PaginationProps {
 }
 
 const Pagination = ({ posts }: PaginationProps) => {
+  const [postPerPage, setPostPerPage] = useState(10);
+  const [currentPage, setCurrentPage] = useState(1);
+  const lastIndex = currentPage * postPerPage;
+  const firstIndex = lastIndex - postPerPage;
+  const currentPosts = posts.slice(firstIndex, lastIndex);
   return (
     <div className="container mx-auto px-4 py-16">
       <div className="relative flex flex-col w-full overflow-auto text-gray-700 bg-white shadow-md rounded-xl">
@@ -25,14 +30,14 @@ const Pagination = ({ posts }: PaginationProps) => {
           </thead>
 
           <tbody>
-            {posts.length === 0 ? (
+            {currentPosts.length === 0 ? (
               <tr>
                 <td colSpan={3} className="text-center p-6">
                   No Data Found
                 </td>
               </tr>
             ) : (
-              posts.map((item) => (
+              currentPosts.map((item) => (
                 <tr key={item.id}>
                   <td className="p-4 border-b">{item.id}</td>
                   <td className="p-4 border-b">{item.title}</td>
@@ -41,6 +46,37 @@ const Pagination = ({ posts }: PaginationProps) => {
               ))
             )}
           </tbody>
+          <tfoot className="bg-gray-100">
+            <tr>
+              <td colSpan={3} className="text-center p-6 flex gap-2 flex-row w-full">
+                <button
+                  disabled={currentPage === 1}
+                  className="bg-blue-500 text-white px-4 py-2 rounded-md"
+                  onClick={() =>
+                    setCurrentPage(currentPage === 1 ? 1 : currentPage - 1)
+                  }
+                >
+                  Previous
+                </button>
+                {Array.from({ length: Math.ceil(posts.length / postPerPage) }).map((_, index) => (
+                  <button
+                    key={index}
+                    className="bg-blue-500 text-white px-4 py-2 rounded-md"
+                    onClick={() => setCurrentPage(index + 1)}
+                  >
+                    {index + 1}
+                  </button>
+                ))}
+                <button
+                  disabled={currentPage === posts.length / postPerPage}
+                  className="bg-blue-500 text-white px-4 py-2 rounded-md"
+                  onClick={() => setCurrentPage(currentPage + 1)}
+                >
+                  Next
+                </button>
+              </td>
+            </tr>
+          </tfoot>
         </table>
       </div>
     </div>
