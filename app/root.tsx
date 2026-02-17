@@ -11,7 +11,8 @@ import type { Route } from "./+types/root";
 import "./app.css";
 import { Toaster } from "~/components/ui/sonner";
 import { Provider } from "react-redux";
-import { store } from "./redux/store";
+import { store, persistor } from "./redux/store";
+import { PersistGate } from "redux-persist/integration/react";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -28,27 +29,40 @@ export const links: Route.LinksFunction = () => [
 
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <head>
-        <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <Meta />
-        <Links />
-      </head>
-      <body>
-        <Provider store={store}>
-          {children}
-          <Toaster richColors />
-        </Provider>
-        <ScrollRestoration />
-        <Scripts />
-      </body>
-    </html>
+        <html lang="en">
+          <head>
+            <meta charSet="utf-8" />
+            <meta
+              name="viewport"
+              content="width=device-width, initial-scale=1"
+            />
+            <Meta />
+            <Links />
+          </head>
+          <body>
+            {children}
+            <Toaster richColors />
+            <ScrollRestoration />
+            <Scripts />
+          </body>
+        </html>
+     
   );
 }
 
 export default function App() {
-  return <Outlet />;
+  
+  return (
+    <Provider store={store}>
+      {typeof window !== "undefined" ? (
+        <PersistGate loading={null} persistor={persistor}>
+         <Outlet />
+        </PersistGate>
+      ) : (
+        <Outlet />
+      )}
+    </Provider>
+  );
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {

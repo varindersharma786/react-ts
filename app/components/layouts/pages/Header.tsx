@@ -1,216 +1,262 @@
+// components/Header.tsx
 "use client";
 
-import * as React from "react";
-
-import { CircleCheckIcon, CircleHelpIcon, CircleIcon } from "lucide-react";
-
-import { useIsMobile } from "~/hooks/use-mobile";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router";
+import { Button, buttonVariants } from "~/components/ui/button";
+import { cn } from "~/lib/utils";
+import { Sheet, SheetContent, SheetTrigger } from "~/components/ui/sheet";
+import { TbLogout } from "react-icons/tb";
 import {
-  NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  NavigationMenuTrigger,
-  navigationMenuTriggerStyle,
-} from "~/components/ui/navigation-menu";
-import { Link } from "react-router";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuPortal,
+  DropdownMenuSeparator,
+  DropdownMenuShortcut,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuTrigger,
+} from "~/components/ui/dropdown-menu";
+import { Menu, X, Search, ShoppingCart, User } from "lucide-react";
 
-const components: { title: string; href: string; description: string }[] = [
+import { logout } from "~/redux/features/authSlice";
+import type { RootState } from "~/redux/store";
+import { useAppDispatch, useAppSelector } from "~/redux/hooks";
+
+const navigationItems = [
   {
-    title: "Alert Dialog",
-    href: "/docs/primitives/alert-dialog",
-    description:
-      "A modal dialog that interrupts the user with important content and expects a response.",
+    title: "Products",
+    href: "/products",
+    items: [
+      { title: "Web Templates", href: "/products/web-templates" },
+      { title: "UI Components", href: "/products/ui-components" },
+      { title: "Plugins", href: "/products/plugins" },
+    ],
   },
   {
-    title: "Hover Card",
-    href: "/docs/primitives/hover-card",
-    description:
-      "For sighted users to preview content available behind a link.",
+    title: "Solutions",
+    href: "/solutions",
+    items: [
+      { title: "For Developers", href: "/solutions/developers" },
+      { title: "For Designers", href: "/solutions/designers" },
+      { title: "For Businesses", href: "/solutions/businesses" },
+    ],
   },
-  {
-    title: "Progress",
-    href: "/docs/primitives/progress",
-    description:
-      "Displays an indicator showing the completion progress of a task, typically displayed as a progress bar.",
-  },
-  {
-    title: "Scroll-area",
-    href: "/docs/primitives/scroll-area",
-    description: "Visually or semantically separates content.",
-  },
-  {
-    title: "Tabs",
-    href: "/docs/primitives/tabs",
-    description:
-      "A set of layered sections of content—known as tab panels—that are displayed one at a time.",
-  },
-  {
-    title: "Tooltip",
-    href: "/docs/primitives/tooltip",
-    description:
-      "A popup that displays information related to an element when the element receives keyboard focus or the mouse hovers over it.",
-  },
+  { title: "Pricing", href: "/pricing" },
+  { title: "About", href: "/about" },
 ];
 
 export function Header() {
-  const isMobile = useIsMobile();
+  const [isOpen, setIsOpen] = useState(false);
+  const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+  const { status } = useAppSelector((state: RootState ) => state.auth);
+
+  if (status === "checking") {
+    return <div>Loading...</div>;
+  }
 
   return (
-    <NavigationMenu viewport={isMobile}>
-      <NavigationMenuList className="flex-wrap">
-        <NavigationMenuItem>
-          <NavigationMenuTrigger>Home</NavigationMenuTrigger>
-          <NavigationMenuContent>
-            <ul className="grid gap-2 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
-              <li className="row-span-3">
-                <NavigationMenuLink asChild>
-                  <Link
-                    className="from-muted/50 to-muted flex h-full w-full flex-col justify-end rounded-md bg-linear-to-b p-4 no-underline outline-hidden transition-all duration-200 select-none focus:shadow-md md:p-6"
-                    to="/"
-                  >
-                    <div className="mb-2 text-lg font-medium sm:mt-4">
-                      shadcn/ui
-                    </div>
-                    <p className="text-muted-foreground text-sm leading-tight">
-                      Beautifully designed components built with Tailwind CSS.
-                    </p>
-                  </Link>
-                </NavigationMenuLink>
-              </li>
-              <ListItem href="/docs" title="Introduction">
-                Re-usable components built using Radix UI and Tailwind CSS.
-              </ListItem>
-              <ListItem href="/docs/installation" title="Installation">
-                How to install dependencies and structure your app.
-              </ListItem>
-              <ListItem href="/docs/primitives/typography" title="Typography">
-                Styles for headings, paragraphs, lists...etc
-              </ListItem>
-            </ul>
-          </NavigationMenuContent>
-        </NavigationMenuItem>
-        <NavigationMenuItem>
-          <NavigationMenuTrigger>Components</NavigationMenuTrigger>
-          <NavigationMenuContent>
-            <ul className="grid gap-2 sm:w-[400px] md:w-[500px] md:grid-cols-2 lg:w-[600px]">
-              {components.map((component) => (
-                <ListItem
-                  key={component.title}
-                  title={component.title}
-                  href={component.href}
+    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="container mx-auto px-4">
+        <div className="flex h-16 items-center justify-between">
+          {/* Logo */}
+          <Link to="/" className="flex items-center space-x-2">
+            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+              <span className="text-primary-foreground font-bold text-sm">
+                L
+              </span>
+            </div>
+            <span className="font-bold text-xl hidden sm:inline-block">
+              Logo
+            </span>
+          </Link>
+
+          {/* Desktop Navigation */}
+          <nav className="hidden lg:flex items-center space-x-6">
+            {navigationItems.map((item) => (
+              <div key={item.title} className="relative group">
+                <Link
+                  to={item.href}
+                  className="text-sm font-medium transition-colors hover:text-primary flex items-center gap-1"
                 >
-                  {component.description}
-                </ListItem>
-              ))}
-            </ul>
-          </NavigationMenuContent>
-        </NavigationMenuItem>
-        <NavigationMenuItem>
-          <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
-            <Link to="/docs">Docs</Link>
-          </NavigationMenuLink>
-        </NavigationMenuItem>
-        <NavigationMenuItem className="hidden md:block">
-          <NavigationMenuTrigger>List</NavigationMenuTrigger>
-          <NavigationMenuContent>
-            <ul className="grid w-[300px] gap-4">
-              <li>
-                <NavigationMenuLink asChild>
-                  <Link to="#">
-                    <div className="font-medium">Components</div>
-                    <div className="text-muted-foreground">
-                      Browse all components in the library.
+                  {item.title}
+                </Link>
+                {/* Simple dropdown - remove if you don't need it */}
+                {item.items && (
+                  <div className="absolute top-full left-0 mt-2 w-48 bg-popover border rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                    <div className="py-2">
+                      {item.items.map((subItem) => (
+                        <Link
+                          key={subItem.title}
+                          to={subItem.href}
+                          className="block px-4 py-2 text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
+                        >
+                          {subItem.title}
+                        </Link>
+                      ))}
                     </div>
-                  </Link>
-                </NavigationMenuLink>
-                <NavigationMenuLink asChild>
-                  <Link to="#">
-                    <div className="font-medium">Documentation</div>
-                    <div className="text-muted-foreground">
-                      Learn how to use the library.
-                    </div>
-                  </Link>
-                </NavigationMenuLink>
-                <NavigationMenuLink asChild>
-                  <Link to="#">
-                    <div className="font-medium">Blog</div>
-                    <div className="text-muted-foreground">
-                      Read our latest blog posts.
-                    </div>
-                  </Link>
-                </NavigationMenuLink>
-              </li>
-            </ul>
-          </NavigationMenuContent>
-        </NavigationMenuItem>
-        <NavigationMenuItem className="hidden md:block">
-          <NavigationMenuTrigger>Simple</NavigationMenuTrigger>
-          <NavigationMenuContent>
-            <ul className="grid w-[200px] gap-4">
-              <li>
-                <NavigationMenuLink asChild>
-                  <Link to="#">Components</Link>
-                </NavigationMenuLink>
-                <NavigationMenuLink asChild>
-                  <Link to="#">Documentation</Link>
-                </NavigationMenuLink>
-                <NavigationMenuLink asChild>
-                  <Link to="#">Blocks</Link>
-                </NavigationMenuLink>
-              </li>
-            </ul>
-          </NavigationMenuContent>
-        </NavigationMenuItem>
-        <NavigationMenuItem className="hidden md:block">
-          <NavigationMenuTrigger>With Icon</NavigationMenuTrigger>
-          <NavigationMenuContent>
-            <ul className="grid w-[200px] gap-4">
-              <li>
-                <NavigationMenuLink asChild>
-                  <Link to="#" className="flex-row items-center gap-2">
-                    <CircleHelpIcon />
-                    Backlog
-                  </Link>
-                </NavigationMenuLink>
-                <NavigationMenuLink asChild>
-                  <Link to="#" className="flex-row items-center gap-2">
-                    <CircleIcon />
-                    To Do
-                  </Link>
-                </NavigationMenuLink>
-                <NavigationMenuLink asChild>
-                  <Link to="#" className="flex-row items-center gap-2">
-                    <CircleCheckIcon />
-                    Done
-                  </Link>
-                </NavigationMenuLink>
-              </li>
-            </ul>
-          </NavigationMenuContent>
-        </NavigationMenuItem>
-      </NavigationMenuList>
-    </NavigationMenu>
-  );
-}
+                  </div>
+                )}
+              </div>
+            ))}
+          </nav>
 
-function ListItem({
-  title,
-  children,
-  href,
-  ...props
-}: React.ComponentPropsWithoutRef<"li"> & { href: string }) {
-  return (
-    <li {...props}>
-      <NavigationMenuLink asChild>
-        <Link to={href}>
-          <div className="text-sm leading-none font-medium">{title}</div>
-          <p className="text-muted-foreground line-clamp-2 text-sm leading-snug">
-            {children}
-          </p>
-        </Link>
-      </NavigationMenuLink>
-    </li>
+          {/* Right Side Actions */}
+          <div className="flex items-center space-x-3">
+            {/* Search Button */}
+            <Button variant="ghost" size="icon" className="hidden sm:flex">
+              <Search className="h-4 w-4" />
+            </Button>
+
+            {/* Cart */}
+            <Button variant="ghost" size="icon" className="relative">
+              <ShoppingCart className="h-4 w-4" />
+              <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs text-primary-foreground">
+                3
+              </span>
+            </Button>
+
+            {/* Auth Buttons - Desktop */}
+            {status !== "authenticated" ? (
+              <div className="hidden sm:flex items-center space-x-2">
+                  <Button variant={"outline"} onClick={()=>navigate("/auth/login")}> Sign In</Button>
+                  <Button onClick={()=>navigate("/auth/register")}> Get Started</Button>
+              
+              </div>
+            ) : (
+              <div className="hidden sm:flex items-center space-x-2">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon">
+                      <User className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-56" align="start">
+                    <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                    <DropdownMenuGroup>
+                      <DropdownMenuItem>Profile</DropdownMenuItem>
+                      <DropdownMenuItem>Billing</DropdownMenuItem>
+                      <DropdownMenuItem>Settings</DropdownMenuItem>
+                    </DropdownMenuGroup>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={() => dispatch(logout())}>
+                      Log out
+                      <DropdownMenuShortcut>
+                        <TbLogout />
+                      </DropdownMenuShortcut>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            )}
+
+            {/* Mobile Menu Trigger */}
+            <Sheet open={isOpen} onOpenChange={setIsOpen}>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon" className="lg:hidden">
+                  <Menu className="h-5 w-5" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-[300px] sm:w-[400px] px-5">
+                <div className="flex flex-col h-full">
+                  {/* Mobile Menu Header */}
+                  <div className="flex items-center justify-between pb-4 border-b">
+                    <Link
+                      to="/"
+                      className="flex items-center space-x-2"
+                      onClick={() => setIsOpen(false)}
+                    >
+                      <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+                        <span className="text-primary-foreground font-bold text-sm">
+                          L
+                        </span>
+                      </div>
+                      <span className="font-bold text-xl">Logo</span>
+                    </Link>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setIsOpen(false)}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+
+                  {/* Mobile Navigation */}
+                  <nav className="flex-1 py-6">
+                    <ul className="space-y-6">
+                      {navigationItems.map((item) => (
+                        <li key={item.title}>
+                          {item.items ? (
+                            <div className="space-y-3">
+                              <div className="font-semibold text-foreground text-lg">
+                                {item.title}
+                              </div>
+                              <ul className="space-y-2 pl-4 border-l-2 border-muted">
+                                {item.items.map((subItem) => (
+                                  <li key={subItem.title}>
+                                    <Link
+                                      to={subItem.href}
+                                      className="block py-2 text-muted-foreground hover:text-foreground transition-colors"
+                                      onClick={() => setIsOpen(false)}
+                                    >
+                                      {subItem.title}
+                                    </Link>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          ) : (
+                            <Link
+                              to={item.href}
+                              className="block py-2 font-semibold text-foreground hover:text-primary transition-colors text-lg"
+                              onClick={() => setIsOpen(false)}
+                            >
+                              {item.title}
+                            </Link>
+                          )}
+                        </li>
+                      ))}
+                    </ul>
+                  </nav>
+                  {status === "authenticated" ? (
+                    <div className="border-t pt-6 space-y-4">
+                      <div className="flex items-center justify-center space-x-4">
+                        <Button variant="ghost" size="icon">
+                          <Search className="h-4 w-4" />
+                        </Button>
+                        <Button variant="ghost" size="icon">
+                          <User className="h-4 w-4" />
+                        </Button>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => dispatch(logout())}
+                      >
+                        <TbLogout />
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="border-t pt-6 space-y-4">
+                      <div className="flex flex-col space-y-3">
+                        <Button variant={"outline"} onClick={()=>navigate("/auth/login")}> Sign In</Button>
+                        <Button onClick={()=>navigate("/auth/register")}> Get Started</Button>
+                      
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </SheetContent>
+            </Sheet>
+          </div>
+        </div>
+      </div>
+    </header>
   );
 }

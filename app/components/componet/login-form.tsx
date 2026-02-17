@@ -9,27 +9,52 @@ import {
 } from "~/components/ui/field";
 import { Input } from "~/components/ui/input";
 import { Link } from "react-router";
-import { FaGithub, FaGoogle } from "react-icons/fa";
-import {api} from "~/utils/axiosapi";
+import { FaEye, FaEyeSlash, FaGithub, FaGoogle } from "react-icons/fa";
+import { api } from "~/utils/axiosapi";
 import { toast } from "sonner";
+import { setCredentials } from "~/redux/features/authSlice";
+import { store } from "~/redux/store";
+import {
+  InputGroup,
+  InputGroupButton,
+  InputGroupInput,
+} from "../ui/input-group";
+import { useState } from "react";
+import { useNavigate } from "react-router";
 
 export default function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"form">) {
+  const navigate = useNavigate();
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+
   const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     try {
       e.preventDefault();
       const formData = new FormData(e.currentTarget);
       const email = formData.get("email");
       const password = formData.get("password");
-      const { data } = await api.post("/auth/login",{
+      const { data } = await api.post("/auth/login", {
         email,
-        password
+        password,
       });
-      console.log(data);
+
+      store.dispatch(setCredentials(data));
+      toast.success(data.message);
+      return navigate("/");
     } catch (error) {
-      if (error && typeof error === 'object' && 'response' in error && error.response && typeof error.response === 'object' && 'data' in error.response && error.response.data && typeof error.response.data === 'object' && 'message' in error.response.data) {
+      if (
+        error &&
+        typeof error === "object" &&
+        "response" in error &&
+        error.response &&
+        typeof error.response === "object" &&
+        "data" in error.response &&
+        error.response.data &&
+        typeof error.response.data === "object" &&
+        "message" in error.response.data
+      ) {
         console.log(error.response.data.message);
         toast.error(error.response.data.message as string);
       } else if (error instanceof Error) {
@@ -70,7 +95,21 @@ export default function LoginForm({
               Forgot your password?
             </Link>
           </div>
-          <Input id="password" name="password" type="password" required />
+          <InputGroup>
+            <InputGroupInput
+              id="password"
+              name="password"
+              type={showPassword ? "text" : "password"}
+              required
+            />
+            <InputGroupButton
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="cursor-pointer"
+            >
+              {showPassword ? <FaEyeSlash /> : <FaEye />}
+            </InputGroupButton>
+          </InputGroup>
         </Field>
         <Field>
           <Button type="submit">Login</Button>

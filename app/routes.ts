@@ -9,6 +9,7 @@ export default [
   layout("./components/layouts/pages/MainLayout.tsx", [
     index("routes/home.tsx"),
     route("/about", "routes/about.tsx"),
+    route("/pagination", "routes/pagination.tsx"),
   ]),
   layout("./components/layouts/auth/AuthLayout.tsx", [
     route("/auth/login", "routes/auth/login.tsx"),
