@@ -17,15 +17,16 @@ const Pagination = ({ posts }: PaginationProps) => {
   const lastIndex = currentPage * postPerPage;
   const firstIndex = lastIndex - postPerPage;
   const currentPosts = posts.slice(firstIndex, lastIndex);
+  
   return (
     <div className="container mx-auto px-4 py-16">
       <div className="relative flex flex-col w-full overflow-auto text-gray-700 bg-white shadow-md rounded-xl">
         <table className="w-full text-left table-auto">
           <thead>
             <tr>
-              <th className="p-4 border-b bg-gray-100">Id</th>
-              <th className="p-4 border-b bg-gray-100">Title</th>
-              <th className="p-4 border-b bg-gray-100">Body</th>
+              <th className="p-4 border-b bg-gray-100 w-2/6">Id</th>
+              <th className="p-4 border-b bg-gray-100 w-2/6">Title</th>
+              <th className="p-4 border-b bg-gray-100 w-2/6">Body</th>
             </tr>
           </thead>
 
